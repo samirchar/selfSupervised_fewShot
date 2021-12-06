@@ -174,10 +174,11 @@ def feature_extractor(model,layer_name,dataset,device):
   return_nodes = {layer_name:'output'}
   extractor = create_feature_extractor(model,return_nodes)
   extracted_features = []
-  for inputs, targets in dataset:
-    inputs, targets = inputs.to(device), targets.to(device)
-    features = extractor(inputs)
-    extracted_features.append(features['output'].squeeze())
+  with torch.no_grad():
+    for inputs, targets in dataset:
+      inputs, targets = inputs.to(device), targets.to(device)
+      features = extractor(inputs)
+      extracted_features.append(features['output'].squeeze())
 
   extracted_features = torch.concat(extracted_features,dim=0)
   return extracted_features.cpu().numpy()
