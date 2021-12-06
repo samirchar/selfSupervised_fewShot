@@ -106,9 +106,6 @@ def train_val_samplers(full_train_size,val_size):
 
   return train_idx, train_sampler, valid_idx, val_sampler
 
-
-
-
 def save_ckpt(epoch,
               net,
               acc,
@@ -173,14 +170,14 @@ def load_ckpt(net,
   return net, optimizer, scheduler,best_acc, start_epoch
 
 
-  def feature_extractor(model,layer_name,dataset):
-    return_nodes = {layer_name:'output'}
-    extractor = create_feature_extractor(model,return_nodes)
-    extracted_features = []
-    for inputs, targets in dataset:
-      inputs, targets = inputs.to(device), targets.to(device)
-      features = extractor(inputs)
-      extracted_features.append(features['output'].squeeze())
+def feature_extractor(model,layer_name,dataset,device):
+  return_nodes = {layer_name:'output'}
+  extractor = create_feature_extractor(model,return_nodes)
+  extracted_features = []
+  for inputs, targets in dataset:
+    inputs, targets = inputs.to(device), targets.to(device)
+    features = extractor(inputs)
+    extracted_features.append(features['output'].squeeze())
 
-    extracted_features = torch.concat(extracted_features,dim=0)
+  extracted_features = torch.concat(extracted_features,dim=0)
   return extracted_features.cpu().numpy()
