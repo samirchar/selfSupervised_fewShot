@@ -21,6 +21,7 @@ from glob import glob
 import re
 from itertools import compress
 import pandas as pd
+from torchvision.models.feature_extraction import create_feature_extractor
 
 torch.manual_seed(0)
 
@@ -170,3 +171,16 @@ def load_ckpt(net,
   start_epoch = checkpoint['epoch']
 
   return net, optimizer, scheduler,best_acc, start_epoch
+
+
+  def feature_extractor(model,layer_name,dataset):
+    return_nodes = {layer_name:'output'}
+    extractor = create_feature_extractor(model,return_nodes)
+    extracted_features = []
+    for inputs, targets in dataset:
+      inputs, targets = inputs.to(device), targets.to(device)
+      features = extractor(inputs)
+      extracted_features.append(features['output'].squeeze())
+
+    extracted_features = torch.concat(extracted_features,dim=0)
+  return extracted_features.cpu().numpy()
