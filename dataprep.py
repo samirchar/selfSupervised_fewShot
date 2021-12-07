@@ -170,15 +170,22 @@ def load_ckpt(net,
   return net, optimizer, scheduler,best_acc, start_epoch
 
 
-def feature_extractor(model,layer_name,dataset,device):
+def feature_extractor(model,layer_name,dataset,device,return_target = True):
   return_nodes = {layer_name:'output'}
   extractor = create_feature_extractor(model,return_nodes)
   extracted_features = []
+  targets_list = []
   with torch.no_grad():
     for inputs, targets in dataset:
       inputs, targets = inputs.to(device), targets.to(device)
       features = extractor(inputs)
       extracted_features.append(features['output'].squeeze())
+      targets_list.append(targets)
 
   extracted_features = torch.concat(extracted_features,dim=0)
+  targets = torch.concat(targets_list,dim=0)
+  
+  if return_target:
+    return extracted_features.cpu().numpy(),targets.cpu().numpy()
+  
   return extracted_features.cpu().numpy()
